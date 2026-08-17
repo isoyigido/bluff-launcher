@@ -12,13 +12,13 @@ jobs:
         include:
           - os: windows-latest
             platform: windows
-            archive-cmd: Compress-Archive -Path "dist/BluffLauncher/*" -DestinationPath "dist/Bluff Launcher (Windows).zip"
+            archive-cmd: Compress-Archive -Path dist/BluffLauncher/* -DestinationPath "dist/Bluff Launcher (Windows).zip"
           - os: macos-latest
             platform: macos
-            archive-cmd: cd dist && zip -r "Bluff Launcher (macOS).zip" "BluffLauncher/*"
+            archive-cmd: cd dist && zip -r "Bluff Launcher (macOS).zip" BluffLauncher
           - os: ubuntu-latest
             platform: linux
-            archive-cmd: cd dist && zip -r "Bluff Launcher (Linux).zip" "BluffLauncher/*"
+            archive-cmd: cd dist && zip -r "Bluff Launcher (Linux).zip" BluffLauncher
 
     steps:
       - name: Checkout Code
