@@ -64,7 +64,7 @@ jobs:
         run: ${{ matrix.archive-cmd }}
 
       - name: Upload Temporary Platform Artifact
-        uses: actions/actions-node@v4
+        uses: actions/upload-artifact@v4
         with:
           name: native-zip-${{ matrix.platform }}
           path: dist/*.zip
