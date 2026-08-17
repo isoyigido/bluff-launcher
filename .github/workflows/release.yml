@@ -91,6 +91,7 @@ jobs:
       - name: Run Semantic Release
         uses: cycjimmy/semantic-release-action@v4
         with:
+          config_file: .releaserc.json
           extra_plugins: |
             @semantic-release/changelog
             @semantic-release/git
