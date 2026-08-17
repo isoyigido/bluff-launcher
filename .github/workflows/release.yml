@@ -1,0 +1,98 @@
+name: Multi-OS Native Release
+on:
+  push:
+    branches: [main, master]
+
+jobs:
+  build-and-package:
+    name: Package Application
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        include:
+          - os: windows-latest
+            platform: windows
+            archive-cmd: Compress-Archive -Path "dist/BluffLauncher/*" -DestinationPath "dist/Bluff Launcher (Windows).zip"
+          - os: macos-latest
+            platform: macos
+            archive-cmd: cd dist && zip -r "Bluff Launcher (macOS).zip" "BluffLauncher/*"
+          - os: ubuntu-latest
+            platform: linux
+            archive-cmd: cd dist && zip -r "Bluff Launcher (Linux).zip" "BluffLauncher/*"
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Set up JDK 24
+        uses: actions/setup-java@v5
+        with:
+          distribution: 'temurin'
+          java-version: '24'
+
+      - name: Compile Java Code
+        shell: bash
+        run: |
+          mkdir -p out/bin out/artifacts
+          javac -d out/bin $(find src -name "*.java")
+          jar cfe out/artifacts/bluff-launcher.jar Main -C out/bin .
+
+      - name: Generate Lightweight Runtime (jlink)
+        shell: bash
+        run: |
+          $JAVA_HOME/bin/jlink \
+            --add-modules java.base,java.desktop \
+            --strip-debug \
+            --no-man-pages \
+            --no-header-files \
+            --output out/runtime
+
+      - name: Package Native Bundle (jpackage)
+        shell: bash
+        run: |
+          mkdir -p dist
+          $JAVA_HOME/bin/jpackage \
+            --type app-image \
+            --input out/artifacts \
+            --main-jar bluff-launcher.jar \
+            --main-class Main \
+            --runtime-image out/runtime \
+            --name "BluffLauncher" \
+            --dest dist
+
+      - name: Compress Bundle to Zip
+        run: ${{ matrix.archive-cmd }}
+
+      - name: Upload Temporary Platform Artifact
+        uses: actions/actions-node@v4
+        with:
+          name: native-zip-${{ matrix.platform }}
+          path: dist/*.zip
+
+  publish-release:
+    name: Run Semantic Release
+    needs: build-and-package
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Download All Platform Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 'lts/*'
+
+      - name: Execute Semantic Release
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          npx -p semantic-release \
+              -p @semantic-release/changelog \
+              -p @semantic-release/github \
+              semantic-release
