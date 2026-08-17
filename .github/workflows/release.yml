@@ -1,4 +1,5 @@
 name: Multi-OS Native Release
+
 on:
   push:
     branches: [main, master]
@@ -73,6 +74,10 @@ jobs:
     name: Run Semantic Release
     needs: build-and-package
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      issues: write
+      pull-requests: write
     steps:
       - name: Checkout Code
         uses: actions/checkout@v4
