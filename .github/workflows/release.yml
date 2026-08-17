@@ -88,16 +88,12 @@ jobs:
           path: dist
           merge-multiple: true
 
-      - name: Set up Node.js
-        uses: actions/setup-node@v4
+      - name: Run Semantic Release
+        uses: cycjimmy/semantic-release-action@v4
         with:
-          node-version: 'lts/*'
-
-      - name: Execute Semantic Release
+          extra_plugins: |
+            @semantic-release/changelog
+            @semantic-release/git
+            conventional-changelog-conventionalcommits
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          npx -p semantic-release \
-              -p @semantic-release/changelog \
-              -p @semantic-release/github \
-              semantic-release
