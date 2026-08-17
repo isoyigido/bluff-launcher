@@ -8,9 +8,18 @@
       "@semantic-release/github",
       {
         "assets": [
-          {"path": "dist/*.zip"}
+          { "path": "dist/*.zip" }
         ]
       }
+    ],
+    [
+      "@semantic-release/git",
+      {
+        "assets": ["CHANGELOG.md"],
+        "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
+      }
     ]
-  ]
+  ],
+  "tagFormat": "${version}",
+  "preset": "conventionalcommits"
 }
