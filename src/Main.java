@@ -29,6 +29,7 @@ public final class Main {
             File installFolder = new File(INSTALL_DIR);
             if (!installFolder.exists()) {
                 installFolder.mkdirs();
+                System.out.println("Generated install directory: " + installFolder.getAbsolutePath());
             }
 
             String latestTag = getLatestReleaseTag();
